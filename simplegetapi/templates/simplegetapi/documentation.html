@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}API Documentation{% endblock %}
+
+{% block head %}
+<link href="{{STATIC_ROOT}}js/prettify.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="{{STATIC_ROOT}}js/prettify.js"></script>
+<script>$(function() { prettyPrint(); });</script>
+{% endblock %}
+
+{% block body %}
+	<h2>General Options</h2>
+	
+	{% include "simplegetapi/documentation_generalopts.html" %}
+
+	<h2>The API Access Points and Schemas</h2>
+	
+	<p>The following resources are available in the API.</p>
+	
+	<ul class="bullets">
+	{% for endpoint, resourcedef in apis %}
+		<li><a href="#endpoint_{{endpoint}}">{{endpoint|capfirst}}</a><br/>{{resourcedef.get_docstring}}</li>
+	{% endfor %}
+	</ul>
+	
+	{% for endpoint, resourcedef in apis %}
+		<a name="endpoint_{{endpoint}}"> </a>
+		<h3>{{endpoint|capfirst}}</h3>
+
+		{% include "simplegetapi/documentation_fields.html" %}
+	{% endfor %}
+{% endblock %}
+

@@ -1,0 +1,44 @@
+<p>{{resourcedef.docstring}}</p>
+<p>
+	Use the list API at <a href="{{baseurl}}{{endpoint}}">{{baseurl}}{{endpoint}}</a> to get a list of objects of this type.
+	{% if resourcedef.canonical_example %}
+		Add a slash and the ID of any object to get just that object. For instance, try out <a href="{{baseurl}}{{endpoint}}/{{resourcedef.canonical_example}}">{{baseurl}}{{endpoint}}/{{resourcedef.canonical_example}}</a>.
+	{% endif %}
+</p>
+
+{% if resourcedef.example_content %}
+	<pre class="example prettyprint">{{resourcedef.example_content}}</pre>
+{% endif %}
+
+<h4 style="margin-left: 16px">Fields</h4>
+
+<dl class="schema">
+{% for field, info in resourcedef.fields_list %}
+	<dt>{{field}}</dt>
+	<dd>
+		<div>
+		{% if field == "id" %}The primary key of this resource. Add a slash and this ID to the base URI for this API endpoint to get information on just this object.{% endif %}
+		{% if field == "link" %}The canonical URL of this resource.{% endif %}
+		{% if field != "id" and field != "resource_uri" %}{{info.help_text}}{% endif %}
+		</div>
+
+		{% if info.filterable %}<div><small>{{info.filterable}}</small></div>{% endif %}
+		
+		{% if info.enum_values %}
+		<div style="margin: 1em 0 1em 0">This field can take on the following values:</div>
+		<table>
+		<tr><th>Value</th> <th style="padding-left: 2em">Notes</th></tr>
+		{% for k, v in info.enum_values.items %}
+			<tr>
+			<td style="padding-bottom: .5em">{{k}}</td>
+			<td style="padding-left: 2em; padding-bottom: .5em; line-height: 120%">{{v.label}}
+				{% if v.description %}<br><small>{{v.description}}</small>{% endif %}
+			</td>
+			</tr>
+		{% endfor %}
+		</table>
+		{% endif %}
+	</dd>
+	<div style="clear: both"> </div>
+{% endfor %}
+</dl>
