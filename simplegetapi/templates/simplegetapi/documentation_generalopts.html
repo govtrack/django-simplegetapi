@@ -17,3 +17,8 @@
 <p>You can filter output on any filterable field (which are indicated in the field documentation below) using query string parameters (e.g. <tt>filter1=value1&amp;filter2=value2</tt>. Endpoints backed by Django Haystack also support the <tt>q</tt>field which performs a full-text search. To specify a null value, just use &ldquo;null&rdquo;. For date and date-time fields, use ISO format (YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS), like you&rsquo;ll see in the output.</p>
 
 <p>Besides exact comparisons, you can also use several operators as <tt>fieldname__operator</tt>. The operators are contains, exact, gt, gte, lt, lte, in, startswith, and range. The in and range operators accept multiple values separated by pipe characters.</p>
+
+<h3>Other Notes</h3>
+
+<p>CORS is enabled for API URLs without credentials passing.</p>
+

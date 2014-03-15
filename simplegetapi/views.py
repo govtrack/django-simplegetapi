@@ -18,6 +18,16 @@ def do_api_call(request, model, qs, id):
     if type(qs).__name__ not in ("QuerySet", "SearchQuerySet"):
         raise Exception("Invalid use. Pass a QuerySet or Haystack SearchQuerySet.")
 
+    # Handle a CORS preflight request by allowing cross-domain access to any information
+    # provided by the API.
+    if request.method == "OPTIONS":
+        resp = HttpResponse("", mimetype="text/plain; charset=UTF-8")
+        resp["Access-Control-Allow-Origin"] = "*"
+        resp["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+        resp["Access-Control-Allow-Headers"] = "Authorization,Content-Type,Accept,Origin,User-Agent,DNT,Cache-Control,X-Mx-ReqToken,Keep-Alive,X-Requested-With,If-Modified-Since"
+        resp["Access-Control-Max-Age"] = "1728000"
+        return resp
+
     if request.method != "GET":
         # This is a GET-only API.
         return HttpResponseNotAllowed(["GET"])
@@ -51,19 +61,24 @@ def do_api_call(request, model, qs, id):
     # Return results.
     format = request.GET.get('format', 'json')
     if format == "json":
-        return serialize_response_json(response)
+        resp = serialize_response_json(response)
         
     elif format == "jsonp":
-        return serialize_response_jsonp(response, request.GET.get("callback", "callback"))
+        resp = serialize_response_jsonp(response, request.GET.get("callback", "callback"))
         
     elif format == "xml":
-        return serialize_response_xml(response)
+        resp = serialize_response_xml(response)
         
     elif format in ("csv", "csv:attachment", "csv:inline"):
-        return serialize_response_csv(response, id == None, requested_fields, format)
+        resp = serialize_response_csv(response, id == None, requested_fields, format)
         
     else:
         return HttpResponseBadRequest("Invalid response format: %s." % format)
+
+    # Enable CORS. Allow cross-domain access to anything provided by the API.
+    resp["Access-Control-Allow-Origin"] = "*"
+
+    return resp
         
 def do_api_search(model, qs, request_options, requested_fields):
     """Processes an API call search request, i.e. /api/modelname?..."""
