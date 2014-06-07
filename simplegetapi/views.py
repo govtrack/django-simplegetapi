@@ -282,8 +282,11 @@ def normalize_field_value(v, model, modelfield):
         if modelfield and fieldname == modelfield.name and fieldtype in ("Date", "DateTime"):
             is_dt = True
     if is_dt:
-        # Let any ValueErrors percolate up.
-        return dateutil.parser.parse(str(v), default=datetime.datetime.min, ignoretz=not settings.USE_TZ)
+        # Let any ValueErrors percolate up. Seems like TypeError also can occur ('2014-xx-xx').
+        try:
+            return dateutil.parser.parse(str(v), default=datetime.datetime.min, ignoretz=not settings.USE_TZ)
+        except TypeError:
+            raise ValueError("Invalid date.")
         
     return v
 
