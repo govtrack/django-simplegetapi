@@ -21,7 +21,7 @@ def do_api_call(request, model, qs, id):
     # Handle a CORS preflight request by allowing cross-domain access to any information
     # provided by the API.
     if request.method == "OPTIONS":
-        resp = HttpResponse("", mimetype="text/plain; charset=UTF-8")
+        resp = HttpResponse("", content_type="text/plain; charset=UTF-8")
         resp["Access-Control-Allow-Origin"] = "*"
         resp["Access-Control-Allow-Methods"] = "GET, OPTIONS"
         resp["Access-Control-Allow-Headers"] = "Authorization,Content-Type,Accept,Origin,User-Agent,DNT,Cache-Control,X-Mx-ReqToken,Keep-Alive,X-Requested-With,If-Modified-Since"

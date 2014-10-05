@@ -114,7 +114,7 @@ def serialize_response_json(response):
     """Convert the response dict to JSON."""
     ret = json.dumps(response, sort_keys=True, ensure_ascii=False, indent=True)
     ret = ret.encode("utf8")
-    resp = HttpResponse(ret, mimetype="application/json; charset=utf-8")
+    resp = HttpResponse(ret, content_type="application/json; charset=utf-8")
     resp["Content-Length"] = len(ret)
     resp["Generated-At"] = datetime.datetime.now().isoformat()
     return resp
@@ -125,7 +125,7 @@ def serialize_response_jsonp(response, callback_name):
     ret += json.dumps(response, sort_keys=True, ensure_ascii=False, indent=True)
     ret += ");"
     ret = ret.encode("utf8")
-    resp = HttpResponse(ret, mimetype="application/javascript; charset=utf-8")
+    resp = HttpResponse(ret, content_type="application/javascript; charset=utf-8")
     resp["Content-Length"] = len(ret)
     return resp
 
@@ -156,7 +156,7 @@ def serialize_response_xml(response):
     make_node(root, response)
     
     ret = lxml.etree.tostring(root, encoding="utf8", pretty_print=True)
-    resp = HttpResponse(ret, mimetype="text/xml")
+    resp = HttpResponse(ret, content_type="text/xml")
     resp["Content-Length"] = len(ret)
     return resp
     
@@ -202,13 +202,13 @@ def serialize_response_csv(response, is_list, requested_fields, format):
         
     raw_data = raw_data.getvalue()
     if (len(raw_data) > 500000 and format == "csv") or format == "csv:attachment":
-        resp = HttpResponse(raw_data, mimetype="text/csv")
+        resp = HttpResponse(raw_data, content_type="text/csv")
         resp['Content-Disposition'] = 'attachment; filename="query.csv"'
     #elif format == "csv:inline":
-        #resp = HttpResponse(raw_data, mimetype="text/csv")
+        #resp = HttpResponse(raw_data, content_type="text/csv")
         #resp['Content-Disposition'] = 'inline; filename="query.csv"'
     else:
-        resp = HttpResponse(raw_data, mimetype="text/plain")
+        resp = HttpResponse(raw_data, content_type="text/plain")
         resp['Content-Disposition'] = 'inline'
     resp["Content-Length"] = len(raw_data)
     return resp
