@@ -5,7 +5,7 @@ from django.db.models.related import RelatedObject
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 import csv, json, StringIO, datetime, lxml, urllib
-import dateutil
+import dateutil.parser
 
 from utils import is_enum, get_orm_fields
 from simplegetapi.serializers import serialize_object, serialize_response_json, serialize_response_jsonp, serialize_response_xml, serialize_response_csv
