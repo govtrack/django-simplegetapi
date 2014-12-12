@@ -1,4 +1,4 @@
-import datetime, json, csv, lxml.etree
+import datetime, json, csv, lxml.etree, decimal
 
 try:
     # Python 2.x
@@ -26,6 +26,10 @@ def serialize_object(obj, recurse_on=[], requested_fields=None):
     elif isinstance(obj, (datetime.date, datetime.datetime)):
         # dates and datetimes
         return obj.isoformat()
+
+    elif isinstance(obj, decimal.Decimal):
+        # Convert Decimals to floats.
+        return float(obj)
         
     elif isinstance(obj, Model):
         # ORM instances
