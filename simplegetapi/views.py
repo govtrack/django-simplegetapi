@@ -8,7 +8,7 @@ from django.conf import settings
 import csv, json, datetime, lxml, urllib
 import dateutil.parser
 
-from simplegetapi.utils import is_enum, get_orm_fields
+from simplegetapi.utils import is_enum, enum_key_to_value, enum_get_values, get_orm_fields
 from simplegetapi.serializers import serialize_object, serialize_response_json, serialize_response_jsonp, serialize_response_xml, serialize_response_csv
 
 def get_api_models():
@@ -307,7 +307,7 @@ def normalize_field_value(v, model, modelfield):
     if choices and is_enum(choices):
         try:
             # Convert the string value to the raw database integer value.
-            return int(choices.by_key(v))
+            return enum_key_to_value(choices, v)
         except: # field is not a model field, or enum value is invalid (leave as original)
             raise ValueError("%s is not a valid value; possibly values are %s" % (v, ", ".join(c.key for c in choices.values())))
 
@@ -461,7 +461,7 @@ def build_api_documentation(model, qs):
             # Choices?
             enum = field.choices
             if is_enum(enum):
-                field_info["enum_values"] = dict((v.key, { "label": v.label, "description": getattr(v, "search_help_text", None) } ) for v in enum.values())
+                field_info["enum_values"] = enum_get_values(enum)
 
         # Stupid Django hard-coded text.
         field_info["help_text"] = field_info.get("help_text", "").replace('Hold down "Control", or "Command" on a Mac, to select more than one.', '')

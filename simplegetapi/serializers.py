@@ -14,7 +14,7 @@ from django.db.models import Model
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.db.models.related import RelatedObject
 
-from simplegetapi.utils import is_enum, get_orm_fields
+from simplegetapi.utils import is_enum, enum_value_to_key_and_label, get_orm_fields
 
 def serialize_object(obj, recurse_on=[], requested_fields=None):
     """Serializes a Python object to JSON-able data types (listed in the 1st if block below)."""
@@ -110,13 +110,15 @@ def serialize_object(obj, recurse_on=[], requested_fields=None):
                 
             # For enumerations, output the key and label and not the raw database value.
             elif v is not None and is_enum(choices):
-                v = choices.by_value(v)
-                ret[field_name] = v.key
-                ret[field_name + "_label"] = v.label
+                key, label = enum_value_to_key_and_label(choices, v)
+                ret[field_name] = key
+                if label:
+                    ret[field_name + "_label"] = label
                 
             # For all other values, serialize by recursion.
             else:
                 ret[field_name] = serialize_object(v, recurse_on=sub_recurse_on, requested_fields=sub_fields)
+                
         return ret
         
     # For all other object types, convert to unicode.
