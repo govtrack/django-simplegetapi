@@ -4,10 +4,10 @@ from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.db.models.related import RelatedObject
 from django.shortcuts import get_object_or_404
 from django.conf import settings
-import csv, json, StringIO, datetime, lxml, urllib
+import csv, json, datetime, lxml, urllib
 import dateutil.parser
 
-from utils import is_enum, get_orm_fields
+from simplegetapi.utils import is_enum, get_orm_fields
 from simplegetapi.serializers import serialize_object, serialize_response_json, serialize_response_jsonp, serialize_response_xml, serialize_response_csv
 
 def do_api_call(request, model, qs, id):
@@ -93,7 +93,14 @@ def do_api_search(model, qs, request_options, requested_fields):
     qs_sort = None
     qs_filters = { }
 
-    for arg, vals in request_options.iterlists():
+    try:
+        # Python 2.x
+        querystringargs = request_options.iterlists()
+    except:
+        # Python 3.x
+        querystringargs = request_options.lists()
+
+    for arg, vals in querystringargs:
         if arg in ("offset", "limit", "format", "fields", "callback"):
             # These aren't filters.
             pass
@@ -368,6 +375,9 @@ def build_api_documentation(model, qs):
             else:
                 field_info["filterable"] = "Filterable when also filtering on " + " and ".join(indexed_if[field_name]) + "."
                 
+        if "unicode" not in globals():
+            # Python 3.x compatibility
+            unicode = str
         if isinstance(field, (str, unicode)):
             # for api_additional_fields
             v = model.api_additional_fields[field] # get the attribute or function

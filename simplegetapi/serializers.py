@@ -1,4 +1,13 @@
-import StringIO, datetime, json, csv, lxml.etree
+import datetime, json, csv, lxml.etree
+
+try:
+    # Python 2.x
+    from StringIO import StringIO
+except ImportError:
+    # Python 3.x
+    from io import StringIO
+    unicode = str
+    long = int
 
 from django.http import HttpResponse
 from django.db.models import Model

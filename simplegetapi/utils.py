@@ -1,10 +1,20 @@
 import inspect
 
-from common import enum as enummodule
+if "unicode" not in globals():
+    # Python 3.x compatibility
+    unicode = str
+
+try:
+    from common import enum as enummodule
+    has_common_enum = True
+except:
+    has_common_enum = False
 
 from django.db.models.related import RelatedObject
 
 def is_enum(obj):
+    if not has_common_enum:
+        return False
     return inspect.isclass(obj) and issubclass(obj, enummodule.Enum)
     
 def get_orm_fields(obj):
