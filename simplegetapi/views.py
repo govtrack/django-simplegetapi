@@ -2,13 +2,50 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAll
 from django.db.models import DateField, DateTimeField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.db.models.related import RelatedObject
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
+from django.core.urlresolvers import reverse
 from django.conf import settings
 import csv, json, datetime, lxml, urllib
 import dateutil.parser
 
 from simplegetapi.utils import is_enum, get_orm_fields
 from simplegetapi.serializers import serialize_object, serialize_response_json, serialize_response_jsonp, serialize_response_xml, serialize_response_csv
+
+def get_api_models():
+    if not hasattr(settings, 'API_MODELS') or not isinstance(settings.API_MODELS, dict):
+        raise Exception("The API_MODELS setting is not configured.")
+
+    def resolve_model_name(model_name):
+        from django.apps import apps # Django 1.7+
+        try:
+            app_label, model_name = model_name.split('.', 1)
+            return apps.get_model(app_label=app_label, model_name=model_name)
+        except:
+            raise Exception("The API_MODELS setting is not configured properly. Invalid model: %s" % model_name)
+
+    return { api_name: resolve_model_name(model_name) for api_name, model_name in settings.API_MODELS.items() }
+
+def api_request(request, model_name, obj_id):
+    # Get the ORM model.
+    models = get_api_models()
+    if not model_name in models:
+        raise Http404(model_name)
+    model = models[model_name]
+
+    # Pass off to main function.
+    return do_api_call(request, model, model.objects.all(), obj_id)
+
+def api_documentation(request):
+    baseurl = request.build_absolute_uri(reverse(api_request))
+    apis = []
+    for api_name, model in get_api_models().items():
+        apis.append(
+            (api_name, build_api_documentation(model, model.objects.all()) )
+        )
+    return render(request, 'simplegetapi/documentation.html', {
+            "baseurl": baseurl,
+            "apis": apis,
+        })
 
 def do_api_call(request, model, qs, id):
     """Processes an API request for a given ORM model, queryset, and optional ORM instance ID."""

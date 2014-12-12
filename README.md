@@ -16,7 +16,7 @@ Advantages:
 Dependencies:
 -------------
 
-* Python 2.x.
+* Python 2.x or 3.x.
 * lxml.etree for the XML output format.
 
 Usage:
@@ -24,56 +24,20 @@ Usage:
 
 1) Put `simplegetapi` in your Python path and add `simplegetapi` to your INSTALED_APPS.
 
-2) Create a URLconf entry for API GET requests.
+2) Configure which models will be exposed in the API and under what endpoint names. Add to settings.py:
 
-    url(r'^api/v1/([^/]+)(?:/(\d+))?', 'api_request'),
-
-3) Create a GET view.
-
-For ORM-backed models use:
-
-	from simplegetapi.views import do_api_call
-
-	api_model_names = {
-		"person": MyPersonModel,
+	API_MODELS = {
+	    'polls': 'myapp.Poll',
 	}
 
-	def api_request(request, model_name, obj_id):
-		model = api_model_names[model_name]
-		qs = model.objects.all()
-		return do_api_call(request, model, qs, obj_id)
+2) Create a URLconf entry for API requests and the automatically-generated API documentation page.
 
-For Haystack-backed models, replace `qs` with:
+	url(r'^api/v1', include('simplegetapi.urls')),
+	url(r'^developers/api$', 'simplegetapi.views.api_documentation'),
+ 
+This will expose the myapp.Poll class at `/api/v1/polls`.
 
-	from haystack.query import SearchQuerySet
-	qs = SearchQuerySet().models(model)
-
-4) Make a documentation page.
-
-Add a URLconf entry:
-
-    url(r'^developers/api$', 'api_documentation'),
-
-And make a view:
-
-	from simplegetapi.views import build_api_documentation
-
-	def api_documentation(request):
-		baseurl = "http://%s/api/v1/" % request.META["HTTP_HOST"]
-
-		apis = []
-		for model_name, model in api_model_names.items():
-			apis.append(
-				(model, build_api_documentation(model, model.objects.all()) )
-			)
-
-		return render_to_response('simplegetapi/documentation.html', {
-				"baseurl": baseurl,
-				"apis": apis,
-			},
-			RequestContext(request))
-
-5) Customize your models.
+3) Customize your models.
 
 Optionally add any of the following to your models.
 
@@ -92,7 +56,7 @@ Optionally add any of the following to your models.
 Notes
 -----
 
-TODO: Document extended configuration options for Haystack.
+TODO: Document configuration for Haystack.
 
 TODO: Document how the enum class works. And its doc help text.
 
