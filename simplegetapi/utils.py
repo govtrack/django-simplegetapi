@@ -29,7 +29,7 @@ def is_enum_commonenum(choices):
 
 def enum_key_to_value(enumclass, key):
     if is_enum_commonenum(enumclass):
-        return int(enumclass.by_key(v))
+        return int(enumclass.by_key(key))
 
 def enum_get_values(choices):
     if is_enum_commonenum(choices):

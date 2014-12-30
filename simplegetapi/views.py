@@ -323,7 +323,7 @@ def normalize_field_value(v, model, modelfield):
             # Convert the string value to the raw database integer value.
             return enum_key_to_value(choices, v)
         except: # field is not a model field, or enum value is invalid (leave as original)
-            raise ValueError("%s is not a valid value; possibly values are %s" % (v, ", ".join(c.key for c in choices.values())))
+            raise ValueError("%s is not a valid value; possible values are %s" % (v, ", ".join(c.key for c in choices.values())))
 
     # If this is a filter on a datetime field, parse the date in ISO format
     # because that's how we serialize it. Normally you can just pass a string
