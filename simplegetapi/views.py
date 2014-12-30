@@ -1,5 +1,5 @@
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed, Http404, QueryDict
-from django.db.models import DateField, DateTimeField
+from django.db.models import DateField, DateTimeField, BooleanField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.db.models.related import RelatedObject
 from django.shortcuts import get_object_or_404, render
@@ -300,6 +300,20 @@ def normalize_field_value(v, model, modelfield):
             raise ValueError("Field cannot be null.")
         return None
         
+    is_bool = False
+    if modelfield and isinstance(modelfield, (BooleanField)):
+        is_bool = True
+    # and for our way of specifying additional Haystack fields...
+    for fieldname, fieldtype in getattr(model, "haystack_index_extra", []):
+        if modelfield and fieldname == modelfield.name and fieldtype in ("Boolean"):
+            is_bool = True
+    if is_bool:
+        if v == "true":
+            return True
+        if v == "false":
+            return False
+        raise ValueError("Invalid boolean (must be 'true' or 'false').")
+
     # If the model field's choices is a common.enum.Enum instance,
     # then the filter specifies the enum key, which has to be
     # converted to an integer.
