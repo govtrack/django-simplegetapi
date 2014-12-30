@@ -201,7 +201,7 @@ def serialize_response_csv(response, is_list, requested_fields, format):
         requested_fields.sort()
                 
     # write CSV to buffer
-    raw_data = StringIO.StringIO()
+    raw_data = StringIO()
     writer = csv.writer(raw_data)
     writer.writerow(requested_fields)
     def get_value_recursively(item, key):
