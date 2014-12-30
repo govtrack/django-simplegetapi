@@ -25,7 +25,7 @@ def is_enum_pyenum(choices):
     return has_enum and len(choices) > 0 and isinstance(choices[0][0], enum.Enum)
 
 def is_enum_commonenum(choices):
-    return has_common_enum and inspect.isclass(choices) and issubclass(obj, enummodule.Enum)
+    return has_common_enum and inspect.isclass(choices) and issubclass(choices, enummodule.Enum)
 
 def enum_key_to_value(enumclass, key):
     if is_enum_commonenum(enumclass):
@@ -33,7 +33,7 @@ def enum_key_to_value(enumclass, key):
 
 def enum_get_values(choices):
     if is_enum_commonenum(choices):
-        dict((v.key, { "label": v.label, "description": getattr(v, "search_help_text", None) } ) for v in enum.values())
+        dict((v.key, { "label": v.label, "description": getattr(v, "search_help_text", None) } ) for v in choices.values())
     if is_enum_pyenum(choices):
         return { k.name: { "label": k.name, "description": "" } for k, v in choices }
 
