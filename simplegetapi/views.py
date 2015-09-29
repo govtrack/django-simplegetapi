@@ -127,7 +127,7 @@ def do_api_search(model, qs, request_options, requested_fields):
 
     # Apply filters specified in the query string.
 
-    qs_sort = None
+    qs_sort = []
     qs_filters = { }
 
     try:
@@ -149,12 +149,11 @@ def do_api_search(model, qs, request_options, requested_fields):
                 return HttpResponseBadRequest("Invalid query: Multiple sort parameters.")
                 
             try:
-                qs = qs.order_by(vals[0]) # fieldname or -fieldname
+                qs = qs.order_by(*vals[0].split('|')) # fieldname or -fieldname, |-delimited to sort on multiple columns
             except Exception as e:
                 return HttpResponseBadRequest("Invalid sort: %s" % repr(e))
 
-            qs_sort = (vals[0], "+")
-            if vals[0].startswith("-"): qs_sort = (vals[0][1:], "-")
+            qs_sort = [(v, '+') if not v.startswith('-') else (v[1:], "-") for v in vals[0].split('|')]
 
         elif arg == "q" and qs_type == "SearchQuerySet":
             # For Haystack searches, 'q' is a shortcut for the content= filter which
@@ -227,8 +226,9 @@ def do_api_search(model, qs, request_options, requested_fields):
     indexed_fields, indexed_if = get_model_filterable_fields(model, qs_type)
 
     # Check the sort field is OK.
-    if qs_sort and qs_sort[0] not in indexed_fields:
-        return HttpResponseBadRequest("Cannot sort on field: %s" % qs_sort[0])
+    for field, ascdesc in qs_sort:
+        if field not in indexed_fields:
+            return HttpResponseBadRequest("Cannot sort on field: %s" % field)
         
     # Check the filters are OK.
     for fieldname, (modelfield, operator) in qs_filters.items():
