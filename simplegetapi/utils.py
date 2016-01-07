@@ -33,7 +33,7 @@ def enum_key_to_value(enumclass, key):
 
 def enum_get_values(choices):
     if is_enum_commonenum(choices):
-        dict((v.key, { "label": v.label, "description": getattr(v, "search_help_text", None) } ) for v in choices.values())
+        return dict((v.key, { "label": v.label, "description": getattr(v, "search_help_text", None) } ) for v in choices.values())
     if is_enum_pyenum(choices):
         return { k.name: { "label": k.name, "description": "" } for k, v in choices }
 
