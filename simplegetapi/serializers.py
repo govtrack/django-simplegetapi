@@ -39,7 +39,7 @@ def serialize_object(obj, recurse_on=[], requested_fields=None):
         # If requested_fields is set, get the list of fields to actually pull data from.
         # requested_fields supports field__field chaining, so just take the first part
         # of each specified field.
-        local_fields = [f.split("__", 1)[0] for f in requested_fields] if requested_fields is not None else None
+        local_fields = [f.split("__", 1)[0] for f in requested_fields] if requested_fields else None
         
         # Loop through the fields on this model. Be sure to process only
         # fields that will not cause additional database queries. ForeignKey,
