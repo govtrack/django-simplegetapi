@@ -436,7 +436,7 @@ def build_api_documentation(model, qs):
                 # it's an attribute name, so pull the value from the attribute,
                 # which hopefully gives something with a docstring
                 v = getattr(model, v)
-                field_info["help_text"] = v.__doc__
+                field_info["help_text"] = v.__doc__ or ""
             
         elif isinstance(field, RelatedObject):
             # for get_all_related_objects()
@@ -447,7 +447,7 @@ def build_api_documentation(model, qs):
             
         else:
             # for regular fields
-            field_info["help_text"] = field.help_text
+            field_info["help_text"] = field.help_text or ""
 
             if isinstance(field, ForeignKey):
                 if field_name not in (recurse_on|recurse_on_single):
