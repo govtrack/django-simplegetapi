@@ -1,4 +1,4 @@
-import inspect
+import inspect, sys
 
 if "unicode" not in globals():
     # Python 3.x compatibility
@@ -10,11 +10,11 @@ try:
 except ImportError:
     has_common_enum = False
 
-try:
+if sys.version_info < (3,):
+    has_enum = False
+else:
     import enum
     has_enum = True
-except ImportError:
-    has_enum = False
 
 from django.db.models.related import RelatedObject
 
