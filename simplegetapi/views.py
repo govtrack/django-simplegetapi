@@ -257,6 +257,8 @@ def do_api_search(model, qs, request_options, requested_fields):
     except ValueError:
         return HttpResponseBadRequest("Invalid offset or limit.")
         
+    if offset < 0: # not supported by Haystack, some QuerySets
+        return HttpResponseBadRequest("Offset cannot be negative.")
     if limit > 6000:
         return HttpResponseBadRequest("Limit > 6000 is not supported. Consider using our bulk data instead.")
 
