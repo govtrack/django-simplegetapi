@@ -124,10 +124,18 @@ def serialize_object(obj, recurse_on=[], requested_fields=None):
     # For all other object types, convert to unicode.
     else:
         return unicode(obj)
+
+def serialize_response_json_data(response):
+    date_handler = lambda obj: (
+        obj.isoformat()
+        if isinstance(obj, (datetime.datetime, datetime.date))
+        else None
+    )
+    return json.dumps(response, sort_keys=True, ensure_ascii=False, indent=True, default=date_handler)
             
 def serialize_response_json(response):
     """Convert the response dict to JSON."""
-    ret = json.dumps(response, sort_keys=True, ensure_ascii=False, indent=True)
+    ret = serialize_response_json_data(response)
     ret = ret.encode("utf8")
     resp = HttpResponse(ret, content_type="application/json; charset=utf-8")
     resp["Content-Length"] = len(ret)
@@ -137,7 +145,7 @@ def serialize_response_json(response):
 def serialize_response_jsonp(response, callback_name):
     """Convert the response dict to JSON."""
     ret = callback_name + "("
-    ret += json.dumps(response, sort_keys=True, ensure_ascii=False, indent=True)
+    ret += serialize_response_json_data(response)
     ret += ");"
     ret = ret.encode("utf8")
     resp = HttpResponse(ret, content_type="application/javascript; charset=utf-8")
@@ -154,6 +162,8 @@ def serialize_response_xml(response):
             parent.text = unicode(obj)
         elif obj is None:
             parent.text = "null"
+        elif isinstance(obj, (datetime.date, datetime.datetime)):
+            parent.text = obj.isoformat()
         elif isinstance(obj, (list, tuple)):
             for n in obj:
                 m = lxml.etree.Element("item")

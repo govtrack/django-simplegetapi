@@ -9,7 +9,7 @@ import csv, json, datetime, lxml, urllib
 import dateutil.parser
 
 from simplegetapi.utils import is_enum, enum_key_to_value, enum_get_values, get_orm_fields
-from simplegetapi.serializers import serialize_object, serialize_response_json, serialize_response_jsonp, serialize_response_xml, serialize_response_csv
+from simplegetapi.serializers import serialize_object, serialize_response_json_data, serialize_response_json, serialize_response_jsonp, serialize_response_xml, serialize_response_csv
 
 def get_api_models():
     if not hasattr(settings, 'API_MODELS') or not isinstance(settings.API_MODELS, dict):
@@ -410,7 +410,7 @@ def build_api_documentation(model, qs):
         for k, v in getattr(model, "api_example_parameters", {}).items():
             qd[k] = v
         example_data = do_api_search(model, qs, qd, None)
-    example_data = json.dumps(example_data, sort_keys=True, ensure_ascii=False, indent=4)
+    example_data = serialize_response_json_data(example_data)
 
     recurse_on = set(getattr(model, "api_recurse_on", []))
     recurse_on_single = set(getattr(model, "api_recurse_on_single", []))
