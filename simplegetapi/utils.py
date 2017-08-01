@@ -44,9 +44,7 @@ def enum_value_to_key_and_label(choices, value):
         return (value.name, None)
 
 def get_orm_fields(obj):
-    for field in obj._meta.fields + \
-        obj._meta.many_to_many + \
-        obj._meta.get_all_related_objects() + \
+    for field in list(obj._meta.get_fields()) + \
         list(getattr(obj, "api_additional_fields", {})):
             
         # Get the field name.
@@ -58,6 +56,7 @@ def get_orm_fields(obj):
             field_name = field.get_accessor_name()
         else:
             # for other fields
+            if field.auto_created: continue
             field_name = field.name
     
         yield field_name, field

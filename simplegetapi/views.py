@@ -356,7 +356,7 @@ def get_model_filterable_fields(model, qs_type):
         # with db_index=True. Additionally allow filtering on a prefix of any Meta.unqiue.
         
         # Get the fields with db_index=True. The id field is implicitly indexed.
-        indexed_fields = set(f.name for f in model._meta.fields if f.name == 'id' or f.db_index)
+        indexed_fields = set(f.name for f in model._meta.get_fields() if f.name == 'id' or getattr(f, 'db_index', False))
 
         # For every (a,b,c) in unique_together, make a mapping like:
         #  a: [] # no dependencies, but indexed
@@ -449,7 +449,7 @@ def build_api_documentation(model, qs):
             
         else:
             # for regular fields
-            field_info["help_text"] = field.help_text or ""
+            field_info["help_text"] = getattr(field, "help_text", "") or ""
 
             if isinstance(field, ForeignKey):
                 if field_name not in (recurse_on|recurse_on_single):
@@ -475,7 +475,7 @@ def build_api_documentation(model, qs):
                 field_info["filterable"] += " To search for a null value, filter on the special string 'null'."
 
             # Choices?
-            enum = field.choices
+            enum = getattr(field, "choices", None)
             if is_enum(enum):
                 field_info["enum_values"] = enum_get_values(enum)
 
