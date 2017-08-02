@@ -12,7 +12,6 @@ except ImportError:
 from django.http import HttpResponse
 from django.db.models import Model
 from django.db.models.fields.related import ForeignKey, ManyToManyField
-from django.db.models.related import RelatedObject
 
 from simplegetapi.utils import is_enum, enum_value_to_key_and_label, get_orm_fields
 
@@ -56,15 +55,10 @@ def serialize_object(obj, recurse_on=[], requested_fields=None):
             # For ForeignKeys, instead output the object ID value instead (which the ORM has already
             # cached).
             #
-            # RelatedObject fields are reverse-relations, so we don't have the ID. Just skip
-            # those.
-            #
             # Other relation fields don't do a query when we access the attribute, so it is safe
             # to check those later. Those return RelatedManagers. We check those later.
             if isinstance(field, ForeignKey) and field_name not in recurse_on:
                 ret[field_name] = getattr(obj, field_name + "_id")
-                continue
-            if isinstance(field, RelatedObject) and field_name not in recurse_on:
                 continue
                 
             # Get the field value.

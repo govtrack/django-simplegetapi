@@ -16,8 +16,6 @@ else:
     import enum
     has_enum = True
 
-from django.db.models.related import RelatedObject
-
 def is_enum(choices):
     return is_enum_pyenum(choices) or is_enum_commonenum(choices)
 
@@ -51,9 +49,6 @@ def get_orm_fields(obj):
         if isinstance(field, (str, unicode)):
             # for api_additional_fields
             field_name = field
-        elif isinstance(field, RelatedObject):
-            # for get_all_related_objects()
-            field_name = field.get_accessor_name()
         else:
             # for other fields
             if field.auto_created: continue

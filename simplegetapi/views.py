@@ -1,7 +1,6 @@
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed, Http404, QueryDict
 from django.db.models import DateField, DateTimeField, BooleanField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
-from django.db.models.related import RelatedObject
 from django.shortcuts import get_object_or_404, render
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -439,13 +438,6 @@ def build_api_documentation(model, qs):
                 # which hopefully gives something with a docstring
                 v = getattr(model, v)
                 field_info["help_text"] = v.__doc__ or ""
-            
-        elif isinstance(field, RelatedObject):
-            # for get_all_related_objects()
-            if field_name not in (recurse_on|recurse_on_single): continue
-            field_info["help_text"] = "A list of %s instances whose %s field is this object. Each instance is returned as a JSON dict (or equivalent in other output formats)." % (field.model.__name__, field.field.name)
-            if field_name not in recurse_on:
-                field_info["help_text"] += " Only returned in a single-object query."
             
         else:
             # for regular fields
