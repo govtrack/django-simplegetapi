@@ -238,8 +238,23 @@ def do_api_search(model, qs, request_options, requested_fields):
             if f2 not in qs_filters:
                 return HttpResponseBadRequest("Cannot filter on field %s without also filtering on %s" %
                     (fieldname, ", ".join(indexed_if[fieldname])))
-        
-    # Form the response.
+
+    # Parse the offset/limit.
+    try:
+        offset = int(request_options.get("offset", "0"))
+        limit = int(request_options.get("limit", "100"))
+    except ValueError:
+        return HttpResponseBadRequest("Invalid offset or limit.")
+    if offset < 0: # not supported by Haystack, some QuerySets
+        return HttpResponseBadRequest("Offset cannot be negative.")
+    if limit > 6000:
+        return HttpResponseBadRequest("Limit > 6000 is not supported. Consider using our bulk data instead.")
+    if qs_type == "QuerySet":
+        # Don't allow very high offset values because MySQL fumbles the query optimization.
+        if offset > 10000:
+            return HttpResponseBadRequest("Offset > 10000 is not supported for this data type. Try a __gt filter instead.")
+    if offset > 1000:
+       return HttpResponseBadRequest("Offset > 1000 is not permitted.")
 
     # Get total count before applying offset/limit.
     try:
@@ -250,22 +265,6 @@ def do_api_search(model, qs, request_options, requested_fields):
         return HttpResponseBadRequest("Something is wrong with the query: %s" % repr(e))
 
     # Apply offset/limit.
-    try:
-        offset = int(request_options.get("offset", "0"))
-        limit = int(request_options.get("limit", "100"))
-    except ValueError:
-        return HttpResponseBadRequest("Invalid offset or limit.")
-        
-    if offset < 0: # not supported by Haystack, some QuerySets
-        return HttpResponseBadRequest("Offset cannot be negative.")
-    if limit > 6000:
-        return HttpResponseBadRequest("Limit > 6000 is not supported. Consider using our bulk data instead.")
-
-    if qs_type == "QuerySet":
-        # Don't allow very high offset values because MySQL fumbles the query optimization.
-        if offset > 10000:
-            return HttpResponseBadRequest("Offset > 10000 is not supported for this data type. Try a __gt filter instead.")
-
     qs = qs[offset:offset + limit]
 
     # Bulk-load w/ prefetch_related, but keep order.
