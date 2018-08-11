@@ -2,7 +2,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAll
 from django.db.models import DateField, DateTimeField, BooleanField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.shortcuts import get_object_or_404, render
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.conf import settings
 import csv, json, datetime, lxml, urllib
 import dateutil.parser
