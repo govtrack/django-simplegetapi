@@ -363,7 +363,7 @@ def get_model_filterable_fields(model, qs_type):
         # indicating which other fields must be filtered on to filter one of these fields.
         indexed_if = { }
         for unique_together in model._meta.unique_together:
-            for i in xrange(len(unique_together)):
+            for i in range(len(unique_together)):
                 indexed_if[unique_together[i]] = unique_together[:i]
 
         # Also allow the model to specify other conditions.

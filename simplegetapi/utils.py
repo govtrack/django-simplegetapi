@@ -20,7 +20,10 @@ def is_enum(choices):
     return is_enum_pyenum(choices) or is_enum_commonenum(choices)
 
 def is_enum_pyenum(choices):
-    return has_enum and len(choices) > 0 and isinstance(choices[0][0], enum.Enum)
+    try:
+      return has_enum and len(choices) > 0 and isinstance(choices[0][0], enum.Enum)
+    except: # TypeError: 'MetaEnum' object does not support indexing
+      return False
 
 def is_enum_commonenum(choices):
     return has_common_enum and inspect.isclass(choices) and issubclass(choices, enummodule.Enum)
