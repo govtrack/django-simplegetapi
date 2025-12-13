@@ -317,7 +317,7 @@ def normalize_field_value(v, model, modelfield):
     # If the model field's choices is a common.enum.Enum instance,
     # then the filter specifies the enum key, which has to be
     # converted to an integer.
-    choices = modelfield.choices if modelfield else None
+    choices = getattr(modelfield, 'choices', None) if modelfield else None
     if choices and is_enum(choices):
         try:
             # Convert the string value to the raw database integer value.
